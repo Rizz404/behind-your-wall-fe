@@ -67,6 +67,10 @@ onMounted(load)
             <dd>{{ visitor.timezone ?? '—' }}</dd>
           </div>
           <div>
+            <dt class="text-surface-500">TZ Country</dt>
+            <dd>{{ visitor.timezoneCountry ?? '—' }}</dd>
+          </div>
+          <div>
             <dt class="text-surface-500">First Seen</dt>
             <dd>{{ dayjs(visitor.firstSeenAt).format('DD MMM YYYY HH:mm') }}</dd>
           </div>
@@ -97,6 +101,12 @@ onMounted(load)
           class="mt-3 max-h-64 overflow-auto rounded-md bg-surface-50 p-3 text-xs"
           >{{ JSON.stringify(visitor.fingerprintComponent.raw, null, 2) }}</pre
         >
+        <div v-if="visitor.fingerprintComponent?.uaChRaw" class="mt-3">
+          <p class="mb-1 text-sm text-surface-500">UA Client Hints (raw)</p>
+          <pre class="max-h-64 overflow-auto rounded-md bg-surface-50 p-3 text-xs"
+            >{{ JSON.stringify(visitor.fingerprintComponent.uaChRaw, null, 2) }}</pre
+          >
+        </div>
         <p v-if="!visitor.fingerprintComponent" class="text-sm text-surface-500">
           Tidak ada data fingerprint components.
         </p>
@@ -120,6 +130,25 @@ onMounted(load)
           </Column>
           <Column field="deviceType" header="Device">
             <template #body="{ data }">{{ data.deviceType ?? '—' }}</template>
+          </Column>
+          <Column header="Platform">
+            <template #body="{ data }">
+              {{ [data.uaPlatform, data.uaPlatformVersion].filter(Boolean).join(' ') || '—' }}
+            </template>
+          </Column>
+          <Column header="Mobile">
+            <template #body="{ data }">
+              {{ data.uaMobile === null || data.uaMobile === undefined ? '—' : data.uaMobile ? 'Ya' : 'Tidak' }}
+            </template>
+          </Column>
+          <Column header="Geo">
+            <template #body="{ data }">
+              <span v-if="data.geoLat != null && data.geoLon != null">
+                {{ data.geoLat.toFixed(4) }}, {{ data.geoLon.toFixed(4) }}
+                <span v-if="data.geoAccuracy != null" class="text-surface-400">(±{{ data.geoAccuracy }}m)</span>
+              </span>
+              <span v-else>—</span>
+            </template>
           </Column>
           <template #empty>Belum ada log kunjungan.</template>
         </DataTable>
