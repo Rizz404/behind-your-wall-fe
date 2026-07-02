@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios'
 import type { ApiErrorResponse } from '@/types/api'
-import { clearSession, getToken } from '@/services/token'
+import { getToken } from '@/services/token'
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth.store'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -19,7 +20,7 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      clearSession()
+      useAuthStore().logout()
       if (router.currentRoute.value.name !== 'login') {
         router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath } })
       }
