@@ -15,8 +15,14 @@ export interface Visitor {
   city: string | null
   isp: string | null
   timezone: string | null
+  timezoneCountry: string | null
   firstSeenAt: string
   lastSeenAt: string
+}
+
+export interface UaBrand {
+  brand: string
+  version: string
 }
 
 export interface VisitLog {
@@ -32,6 +38,14 @@ export interface VisitLog {
   deviceType: string | null
   screenRes: string | null
   language: string | null
+  timezone: string | null
+  uaBrands: UaBrand[] | null
+  uaMobile: boolean | null
+  uaPlatform: string | null
+  uaPlatformVersion: string | null
+  geoLat: number | null
+  geoLon: number | null
+  geoAccuracy: number | null
   createdAt: string
 }
 
@@ -42,6 +56,7 @@ export interface FingerprintComponent {
   webglHash: string | null
   audioHash: string | null
   raw: Record<string, unknown> | null
+  uaChRaw: Record<string, unknown> | null
 }
 
 export interface VisitorDetail extends Visitor {
@@ -57,6 +72,49 @@ export interface PaginatedVisitors {
 }
 
 export interface ListVisitorsQuery {
+  skip?: number
+  take?: number
+  country?: string
+  from?: string
+  to?: string
+}
+
+export interface VisitorSummary {
+  visitorId: string
+  fingerprintId: string
+  visitCount: number
+  firstSeenAt: string
+  lastSeenAt: string
+  country: string | null
+  city: string | null
+  isp: string | null
+  timezone: string | null
+  timezoneCountry: string | null
+  siteId: string | null
+  siteName: string | null
+  siteDomain: string | null
+  lastPageUrl: string | null
+  lastReferrer: string | null
+  lastBrowser: string | null
+  lastOs: string | null
+  lastDeviceType: string | null
+  lastScreenRes: string | null
+  lastLanguage: string | null
+  lastIp: string | null
+  lastUaMobile: boolean | null
+  lastUaPlatform: string | null
+  lastGeoLat: number | null
+  lastGeoLon: number | null
+}
+
+export interface PaginatedVisitorSummary {
+  items: VisitorSummary[]
+  total: number
+  skip: number
+  take: number
+}
+
+export interface ListVisitorsSummaryQuery {
   skip?: number
   take?: number
   country?: string
