@@ -11,11 +11,13 @@ import { useToast } from 'primevue/usetoast'
 import { createSite } from '@/services/sites.service'
 import { extractErrorMessage } from '@/services/api'
 import type { Site } from '@/types/api'
+import EmbedSnippetDialog from '@/components/sites/EmbedSnippetDialog.vue'
 
 const visible = defineModel<boolean>('visible', { required: true })
 const emit = defineEmits<{ created: [site: Site] }>()
 
 const toast = useToast()
+const snippetVisible = ref(false)
 
 const schema = toTypedSchema(
   z.object({
@@ -111,9 +113,12 @@ function close(): void {
         <code class="flex-1 overflow-x-auto text-sm">{{ createdSite.apiKey }}</code>
         <Button icon="pi pi-copy" text size="small" @click="copyApiKey" />
       </div>
-      <div class="flex justify-end">
+      <div class="flex justify-end gap-2">
+        <Button label="Lihat Embed Snippet" severity="secondary" outlined @click="snippetVisible = true" />
         <Button label="Selesai" @click="close" />
       </div>
     </div>
+
+    <EmbedSnippetDialog v-model:visible="snippetVisible" :site="createdSite" />
   </Dialog>
 </template>

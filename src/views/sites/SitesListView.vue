@@ -12,6 +12,7 @@ import { deactivateSite, listSites } from '@/services/sites.service'
 import { extractErrorMessage } from '@/services/api'
 import type { Site } from '@/types/api'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
+import EmbedSnippetDialog from '@/components/sites/EmbedSnippetDialog.vue'
 
 const toast = useToast()
 const confirm = useConfirm()
@@ -19,6 +20,13 @@ const confirm = useConfirm()
 const sites = ref<Site[]>([])
 const loading = ref(false)
 const dialogVisible = ref(false)
+const snippetVisible = ref(false)
+const snippetSite = ref<Site | null>(null)
+
+function openSnippet(site: Site): void {
+  snippetSite.value = site
+  snippetVisible.value = true
+}
 
 async function loadSites(): Promise<void> {
   loading.value = true
@@ -89,19 +97,23 @@ onMounted(loadSites)
       </Column>
       <Column header="">
         <template #body="{ data }">
-          <Button
-            v-if="data.isActive"
-            label="Deactivate"
-            severity="danger"
-            text
-            size="small"
-            @click="confirmDeactivate(data)"
-          />
+          <div class="flex justify-end gap-1">
+            <Button label="Embed" icon="pi pi-code" text size="small" @click="openSnippet(data)" />
+            <Button
+              v-if="data.isActive"
+              label="Deactivate"
+              severity="danger"
+              text
+              size="small"
+              @click="confirmDeactivate(data)"
+            />
+          </div>
         </template>
       </Column>
       <template #empty>Belum ada site.</template>
     </DataTable>
 
     <SiteFormDialog v-model:visible="dialogVisible" @created="loadSites" />
+    <EmbedSnippetDialog v-model:visible="snippetVisible" :site="snippetSite" />
   </div>
 </template>
