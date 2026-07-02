@@ -9,14 +9,14 @@ import DatePicker from 'primevue/datepicker'
 import Button from 'primevue/button'
 import Skeleton from 'primevue/skeleton'
 import { useToast } from 'primevue/usetoast'
-import { listVisitors } from '@/services/visitors.service'
+import { listVisitorsSummary } from '@/services/visitors.service'
 import { extractErrorMessage } from '@/services/api'
-import type { Visitor } from '@/types/api'
+import type { VisitorSummary } from '@/types/api'
 
 const router = useRouter()
 const toast = useToast()
 
-const visitors = ref<Visitor[]>([])
+const visitors = ref<VisitorSummary[]>([])
 const total = ref(0)
 const loading = ref(false)
 
@@ -31,7 +31,7 @@ const query = reactive({
 async function loadVisitors(): Promise<void> {
   loading.value = true
   try {
-    const result = await listVisitors({
+    const result = await listVisitorsSummary({
       skip: query.skip,
       take: query.take,
       country: query.country || undefined,
@@ -67,7 +67,7 @@ function onPage(event: DataTablePageEvent): void {
 }
 
 function onRowClick(event: DataTableRowClickEvent): void {
-  const visitor = event.data as Visitor
+  const visitor = event.data as VisitorSummary
   router.push({ name: 'visitor-detail', params: { fingerprintId: visitor.fingerprintId } })
 }
 
@@ -99,7 +99,7 @@ onMounted(loadVisitors)
     <DataTable
       v-else
       :value="visitors"
-      data-key="id"
+      data-key="visitorId"
       striped-rows
       lazy
       paginator
@@ -118,6 +118,9 @@ onMounted(loadVisitors)
         </template>
       </Column>
       <Column field="visitCount" header="Visits" />
+      <Column header="Site">
+        <template #body="{ data }">{{ data.siteName ?? data.siteDomain ?? '—' }}</template>
+      </Column>
       <Column header="Location">
         <template #body="{ data }">
           {{ [data.city, data.country].filter(Boolean).join(', ') || '—' }}
@@ -125,6 +128,24 @@ onMounted(loadVisitors)
       </Column>
       <Column field="isp" header="ISP">
         <template #body="{ data }">{{ data.isp ?? '—' }}</template>
+      </Column>
+      <Column field="timezoneCountry" header="TZ Country">
+        <template #body="{ data }">{{ data.timezoneCountry ?? '—' }}</template>
+      </Column>
+      <Column header="Last Page">
+        <template #body="{ data }">
+          <span class="block max-w-[16rem] truncate" :title="data.lastPageUrl ?? undefined">
+            {{ data.lastPageUrl ?? '—' }}
+          </span>
+        </template>
+      </Column>
+      <Column header="Last Browser / OS / Device">
+        <template #body="{ data }">
+          {{ [data.lastBrowser, data.lastOs, data.lastDeviceType].filter(Boolean).join(' · ') || '—' }}
+        </template>
+      </Column>
+      <Column header="Last IP">
+        <template #body="{ data }">{{ data.lastIp ?? '—' }}</template>
       </Column>
       <Column header="First Seen">
         <template #body="{ data }">{{ dayjs(data.firstSeenAt).format('DD MMM YYYY HH:mm') }}</template>
